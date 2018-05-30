@@ -100,6 +100,8 @@
 
 #include <cppQueue.h>
 
+const uint TranMax = 5;
+
 struct JhLoraClient : LoraClient
 {
     enum LoraFlag 
@@ -160,21 +162,21 @@ struct JhLoraClient : LoraClient
             TimeOut = millis();
             srand(TimeOut);
             uint8_t buffer[64] = { 0 };
-            sprintf((char *)buffer, "%030d", rand());
+            sprintf((char *)buffer, "%04d", rand() % 10000);
 
             Verify = 0;
-            for(uint8_t i = 0; i < 30; i++) Verify += buffer[i];
+            for(uint8_t i = 0; i < TranMax; i++) Verify += buffer[i];
            
             Logout.printf("RunDelay %d\n", RunDelay);
 
             LoraClient::LoraTranAdjust(LoraRxing != LoraState, &RunDelay);
             delay(RunDelay);
  
-            if(EntryTx(30))
+            if(EntryTx(TranMax))
             {
-                PacketTx(buffer, 30);
+                PacketTx(buffer, TranMax);
 
-                Logout.printf("Result : %d Send : %s\n", 30, buffer);
+                Logout.printf("Result : %d Send : %s\n", TranMax, buffer);
             }
 
             LoraState = LoraTxing;

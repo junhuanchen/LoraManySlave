@@ -4,7 +4,9 @@
 
 #include <cppQueue.h>
 
-Queue cache(30, 8, LIFO);	// Instantiate queue
+const uint TranMax = 5;
+
+Queue cache(TranMax, 8, LIFO);	// Instantiate queue
 
 struct JhLoraClient : LoraClient
 {
@@ -35,7 +37,7 @@ struct JhLoraClient : LoraClient
             {
                 Logout.println("RX Done");
                 uint8_t recvlen = 0;
-                uint8_t buffer[30] = { 0 };
+                uint8_t buffer[TranMax] = { 0 };
                 recvlen = PacketRx(buffer, sizeof(buffer));
                 if (recvlen && recvlen <= sizeof(buffer))
                 {
@@ -52,14 +54,14 @@ struct JhLoraClient : LoraClient
 
     void Poll()
     {
-        uint8_t buffer[30] = { 0 };
+        uint8_t buffer[TranMax] = { 0 };
         if(LoraTx == LoraState && cache.pop(buffer))
         {
-            Logout.printf("Recv : %.*s\n", 30, buffer);
+            Logout.printf("Recv : %.*s\n", TranMax, buffer);
             uint8_t Verify = 0;
             if(EntryTx(sizeof(Verify)))
             {
-                for(uint8_t i = 0; i < 30; i++) Verify += buffer[i];
+                for(uint8_t i = 0; i < TranMax; i++) Verify += buffer[i];
                 PacketTx(&Verify, sizeof(Verify));
                 LoraState = LoraTxing;
             }
